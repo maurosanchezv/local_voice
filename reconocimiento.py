@@ -6,8 +6,30 @@ import keyboard
 import customtkinter as ctk  # type: ignore
 from vosk import Model, KaldiRecognizer  # type: ignore
 import threading
+import re
+
 
 CONFIG_FILE = "config.json"
+
+# Variables globales
+transcription_active = False
+voice_control_active = False
+
+
+def process_voice_command(text):
+    commands = {
+        r"iniciar transcripción": toggle_transcription,
+        r"detener transcripción": toggle_transcription,
+        r"copiar texto": copy_text,
+        r"limpiar texto": clear_text,
+        r"cambiar a español": lambda: language_var.set("Español"),
+        r"cambiar a inglés": lambda: language_var.set("English"),
+    }
+    for command, action in commands.items():
+        if re.search(command, text, re.IGNORECASE):
+            action()
+            return True
+    return False
 
 
 def get_audio_devices():
@@ -34,7 +56,7 @@ def load_config():
 
 
 def transcribe_audio(device_index):
-    global transcription_active
+    global transcription_active, voice_control_active
     transcription_active = True
     language = "es" if language_var.get() == "Español" else "en"
     model_path = f"vosk-model-small-{language}"
@@ -55,50 +77,79 @@ def transcribe_audio(device_index):
         rate=16000,
         input=True,
         input_device_index=device_index,
-        frames_per_buffer=8000,
+        frames_per_buffer=2000,
     )
     stream.start_stream()
 
     status_label.configure(text="Escuchando... Habla ahora")
 
-    while transcription_active:
-        data = stream.read(4000, exception_on_overflow=False)
-        if len(data) == 0:
-            break
-        if rec.AcceptWaveform(data):
-            result = json.loads(rec.Result())
-            if result.get("text", ""):
-                text = result["text"]
-                if write_anywhere_var.get():
-                    keyboard.write(text + " ")
-                else:
-                    text_output.insert("end", text + "\n")
-                    text_output.see("end")
-                print(f"Transcrito: {text}")  # Imprimir en consola
+    def process_audio():
+        if transcription_active:
+            data = stream.read(1000, exception_on_overflow=False)
+            if len(data) == 0:
+                return
+            if rec.AcceptWaveform(data):
+                result = json.loads(rec.Result())
+                process_result(result)
+            else:
+                partial = json.loads(rec.PartialResult())
+                process_result(partial, is_partial=True)
 
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-    status_label.configure(text="Listo para transcribir")
-    start_button.configure(text="Iniciar Transcripción")
+            root.after(10, process_audio)
+        else:
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
+            status_label.configure(text="Listo para transcribir")
+            start_button.configure(text="Iniciar Transcripción")
+
+    def process_result(result, is_partial=False):
+        if result.get("text", ""):
+            text = result["text"]
+            if voice_control_active and process_voice_command(text):
+                return
+            if write_anywhere_var.get():
+                if not is_partial:
+                    keyboard.write(text + " ")
+            else:
+                if is_partial:
+                    text_output.delete("end-1l", "end")
+                text_output.insert("end", text + "\n")
+                text_output.see("end")
+            print(f"Transcrito: {text}")  # Imprimir en consola
+
+    root.after(10, process_audio)
 
 
 def toggle_transcription():
     global transcription_active
 
-    if start_button.cget("text") == "Iniciar Transcripción":
+    if not transcription_active:
         start_button.configure(text="Detener Transcripción")
         selected_device = device_combobox.get()
-        device_index = next(
-            index for index, name in devices if name == selected_device
-        )  # noqa E501
+        device_index = next(index for index, name in devices if name == selected_device)  # noqa E501
         save_config(selected_device, language_var.get())
         threading.Thread(
             target=transcribe_audio, args=(device_index,), daemon=True
         ).start()
     else:
         transcription_active = False
-        start_button.configure(text="Iniciar Transcripción")
+
+
+def toggle_voice_control():
+    global voice_control_active
+    voice_control_active = voice_control_var.get()
+    status_label.configure(
+        text=f"Control por voz {
+            'activado' if voice_control_active else 'desactivado',
+            }"
+    )
+
+
+# Añade esta función para limpiar el texto
+def clear_text():
+    text_output.delete("1.0", "end")
+    status_label.configure(text="Texto limpiado")
 
 
 def start_transcription():
@@ -149,6 +200,16 @@ device_combobox.set(
         "device", devices[0][1] if devices else "No se encontraron micrófonos"
     )  # noqa E501
 )
+
+# En la sección de widgets, añade:
+voice_control_var = ctk.BooleanVar()
+voice_control_check = ctk.CTkCheckBox(
+    main_frame,
+    text="Control por voz",
+    variable=voice_control_var,
+    command=toggle_voice_control,
+)
+voice_control_check.pack(pady=5)
 
 # Selector de idioma
 language_var = ctk.StringVar(value=config.get("language", "Español"))
