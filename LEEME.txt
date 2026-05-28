@@ -1,0 +1,56 @@
+====================================================
+   TRANSCRIPTOR DE VOZ LOCAL - Guía de Usuario
+====================================================
+
+¡Bienvenido! Este programa ha sido diseñado para facilitar la escritura
+mediante el dictado por voz, funcionando de forma totalmente privada
+y sin necesidad de conexión a Internet.
+
+----------------------------------------------------
+1. INSTALACIÓN
+----------------------------------------------------
+1. Haz doble clic en el archivo "Instalar_Transcriptor_Voz.exe".
+2. Sigue las instrucciones (Siguiente -> Instalar).
+3. Al finalizar, tendrás un icono en tu escritorio llamado 
+   "Transcriptor de Voz Local".
+
+----------------------------------------------------
+2. CÓMO USAR EL PROGRAMA
+----------------------------------------------------
+El programa es una pequeña ventana que flota sobre tus otras aplicaciones.
+
+- INICIAR/DETENER GRABACIÓN: 
+  Pulsa la tecla F9 de tu teclado. Es un "Hotkey Global", lo que significa 
+  que funciona incluso si estás en Word, el navegador o cualquier otra ventana.
+  También puedes usar el botón central del micrófono (🎙).
+
+- Dónde escribe: 
+  El programa escribirá automáticamente allí donde tengas situado el 
+  cursor del ratón.
+
+- Puntuación por voz: 
+  Mientras dictas, puedes decir estas palabras para puntuar:
+  * "punto" -> escribe un .
+  * "coma" -> escribe una ,
+  * "nueva línea" -> presiona Enter (baja a la siguiente línea).
+
+----------------------------------------------------
+3. CONFIGURACIÓN (Icono de Engranaje ⚙️)
+----------------------------------------------------
+Desde aquí puedes:
+- Cambiar el Micrófono (si tienes más de uno).
+- Cambiar el Idioma (Español, Inglés, Portugués).
+- Ajustar la Transparencia para que la ventana no te estorbe.
+- Activar/Desactivar el "Texto continuo" (si quieres espacio o Enter 
+  después de cada frase).
+
+----------------------------------------------------
+4. AYUDA (Icono de Interrogación ❓)
+----------------------------------------------------
+Si olvidas algún paso, pulsa el botón "?" para ver una guía rápida.
+
+----------------------------------------------------
+NOTA DE PRIVACIDAD:
+Este programa NO envía tu voz a ningún servidor. Todo el proceso
+se realiza en tu propia computadora.
+----------------------------------------------------

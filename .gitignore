@@ -1,7 +1,26 @@
+# Entornos virtuales
 env/
-dist/
+venv/
+ENV/
+
+# Carpetas de compilación (PyInstaller e Inno Setup)
 build/
-config.json
+dist/
+*.spec
+
+# Caché de Python y herramientas de tipado
 __pycache__/
 .mypy_cache/
-*.spec
+.pytest_cache/
+
+# Configuración local del usuario (privado)
+config.json
+*.log
+
+# Modelos de voz (son pesados, se distribuyen mediante el instalador)
+vosk-model-*/
+
+# Archivos temporales de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
